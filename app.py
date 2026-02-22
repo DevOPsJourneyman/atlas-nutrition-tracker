@@ -394,7 +394,7 @@ def spending():
     
     # Weekly total
     today = date.today()
-    week_start = today - timedelta(days=today.weekday())
+    week_start = today - timedelta(days=(today.weekday() + 2) % 7)
     week_purchases = Purchase.query.filter(Purchase.purchase_date >= week_start).all()
     week_total = sum(p.total_cost for p in week_purchases)
     
