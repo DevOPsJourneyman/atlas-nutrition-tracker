@@ -59,4 +59,10 @@ docker compose up -d --build
 **Week:** 2 — Docker Fundamentals  
 **Portfolio goal:** Demonstrate ability to containerise a real application, understand Docker layer caching, volumes, and Compose orchestration.
 
-Next steps: Push image to Docker Hub, add CI/CD pipeline (Week 6).
+# Pull and run from Docker Hub
+docker pull devopsjourneyman/atlas-nutrition-tracker:latest
+docker run -d -p 5001:5000 devopsjourneyman/atlas-nutrition-tracker:latest
+
+Next steps:  add CI/CD pipeline (Week 6).
+
+
