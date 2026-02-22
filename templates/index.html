@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Today{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ today.strftime('%A, %d %b') }}</h1>
+    <p>Select your meals for today and tomorrow → get a shopping list</p>
+</div>
+
+<!-- Macro summary -->
+{% if today_logs %}
+<div class="card">
+    <h2>Today's Macros</h2>
+    <div class="macro-row">
+        <div class="macro-pill">
+            <div class="value {% if today_total.calories >= 2000 and today_total.calories <= 2200 %}target-ok{% elif today_total.calories < 1800 %}target-low{% else %}target-warn{% endif %}">
+                {{ today_total.calories }}
+            </div>
+            <div class="label">kcal</div>
+        </div>
+        <div class="macro-pill">
+            <div class="value {% if today_total.protein >= 130 %}target-ok{% elif today_total.protein >= 100 %}target-warn{% else %}target-low{% endif %}">
+                {{ today_total.protein|int }}g
+            </div>
+            <div class="label">protein</div>
+        </div>
+        <div class="macro-pill">
+            <div class="value {% if today_total.fibre >= 35 %}target-ok{% elif today_total.fibre >= 25 %}target-warn{% else %}target-low{% endif %}">
+                {{ today_total.fibre|int }}g
+            </div>
+            <div class="label">fibre</div>
+        </div>
+    </div>
+    <div style="margin-top:0.75rem; font-size:11px; color:var(--text-dim);">
+        Targets: 2000-2200 kcal / 130-150g protein / 35g+ fibre
+    </div>
+</div>
+{% endif %}
+
+<!-- Meal selection form -->
+<div class="card">
+    <h2>Plan Your Meals</h2>
+    <form action="/select-meals" method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Today's Cooked Meal</label>
+                <select name="today_cooked" required>
+                    <option value="">— select —</option>
+                    {% for meal in cooked_meals %}
+                    <option value="{{ meal.id }}" {% if today_cooked and today_cooked.meal_id == meal.id %}selected{% endif %}>
+                        {{ meal.name }} ({{ meal.protein|int }}g protein)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tomorrow's Cooked Meal</label>
+                <select name="tomorrow_cooked" required>
+                    <option value="">— select —</option>
+                    {% for meal in cooked_meals %}
+                    <option value="{{ meal.id }}" {% if tomorrow_cooked and tomorrow_cooked.meal_id == meal.id %}selected{% endif %}>
+                        {{ meal.name }} ({{ meal.protein|int }}g protein)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <p style="font-size:12px; color:var(--text-dim); margin-bottom:0.75rem;">
+            Smoothie + Power Salad are added automatically every day.
+        </p>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary">Set Meals</button>
+            <a href="/shopping-list" class="btn btn-ghost">→ Generate Shopping List</a>
+        </div>
+    </form>
+</div>
+
+<!-- Today's meals -->
+{% if today_logs %}
+<div class="card">
+    <h2>Today — {{ today.strftime('%d %b') }}</h2>
+    {% for log in today_logs %}
+    <div class="meal-item {% if log.eaten %}eaten{% endif %}">
+        <form action="/log-eaten" method="POST">
+            <input type="hidden" name="log_id" value="{{ log.id }}">
+            <button type="submit" class="check-btn {% if log.eaten %}checked{% endif %}">✓</button>
+        </form>
+        <div class="meal-name">
+            <span class="meal-badge badge-{{ log.meal.meal_type }}">{{ log.meal.meal_type }}</span>
+            {{ log.meal.name }}
+        </div>
+        <div class="meal-macros">
+            {{ log.meal.calories }} kcal<br>
+            {{ log.meal.protein|int }}g protein
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Tomorrow's meals -->
+{% if tomorrow_logs %}
+<div class="card">
+    <h2>Tomorrow — {{ tomorrow.strftime('%d %b') }}</h2>
+    {% for log in tomorrow_logs %}
+    <div class="meal-item">
+        <div style="width:28px; flex-shrink:0;"></div>
+        <div class="meal-name">
+            <span class="meal-badge badge-{{ log.meal.meal_type }}">{{ log.meal.meal_type }}</span>
+            {{ log.meal.name }}
+        </div>
+        <div class="meal-macros">
+            {{ log.meal.calories }} kcal<br>
+            {{ log.meal.protein|int }}g protein
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not today_logs and not tomorrow_logs %}
+<div class="alert alert-info">
+    Select your meals above to get started. The smoothie and power salad are always included — just pick your cooked meal for each day.
+</div>
+{% endif %}
+
+{% endblock %}

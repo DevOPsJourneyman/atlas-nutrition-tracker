@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Spending{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Food Spending</h1>
+    <p>Track what you spend against your £75/week budget</p>
+</div>
+
+<div class="card">
+    <h2>This Week (from {{ week_start.strftime('%d %b') }})</h2>
+    <div class="macro-row">
+        <div class="macro-pill">
+            <div class="value {% if week_total <= 75 %}target-ok{% elif week_total <= 90 %}target-warn{% else %}target-low{% endif %}">
+                £{{ week_total }}
+            </div>
+            <div class="label">spent</div>
+        </div>
+        <div class="macro-pill">
+            <div class="value {% if 75 - week_total >= 0 %}target-ok{% else %}target-low{% endif %}">
+                £{{ '%.2f'|format([75 - week_total, 0]|max) }}
+            </div>
+            <div class="label">remaining</div>
+        </div>
+        <div class="macro-pill">
+            <div class="value">£75</div>
+            <div class="label">budget</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Recent Purchases</h2>
+    {% if purchases %}
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Ingredient</th>
+                <th>Qty</th>
+                <th>Cost</th>
+                <th>Store</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in purchases %}
+            <tr>
+                <td class="mono" style="color:var(--text-dim)">{{ p.purchase_date.strftime('%d %b') }}</td>
+                <td>{{ p.ingredient.name }}</td>
+                <td class="mono">{{ p.quantity }} {{ p.ingredient.unit }}</td>
+                <td class="mono" style="color:var(--green)">£{{ '%.2f'|format(p.total_cost) }}</td>
+                <td><span class="store-tag">{{ p.store or '—' }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-dim); font-size:13px;">No purchases logged yet. Update stock with a cost to start tracking.</p>
+    {% endif %}
+</div>
+{% endblock %}

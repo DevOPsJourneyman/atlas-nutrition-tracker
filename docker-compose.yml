@@ -1,0 +1,47 @@
+# docker-compose.yml — defines your entire application stack in one file.
+# Instead of running long `docker run` commands, you declare what you want
+# and Compose makes it happen. `docker compose up -d` is all you need.
+#
+# Interview answer: "Compose lets me define multi-container applications
+# declaratively. One file describes the whole stack — services, networking,
+# volumes, and environment. Reproducible on any machine."
+
+services:
+  meal-tracker:
+    # Build from the Dockerfile in the current directory.
+    # Alternative: use `image: your-dockerhub-username/meal-tracker:latest`
+    # to pull a pre-built image from Docker Hub.
+    build: .
+
+    # Container name — makes `docker logs`, `docker exec` easier.
+    container_name: meal-tracker
+
+    # Port mapping: host:container
+    # Your LAN devices will access the app on port 5001 of zeus01.
+    # Container always listens on 5000 (as per EXPOSE in Dockerfile).
+    # You can change 5001 to any free port on zeus01 without touching the app.
+    ports:
+      - "5001:5000"
+
+    # Volume mount — this is how data survives container restarts.
+    # Named volume `meal_data` (defined below) is mounted to /data inside
+    # the container. SQLite writes the database file here.
+    # Interview answer: "I use a named volume so the database persists
+    # independently of the container lifecycle."
+    volumes:
+      - meal_data:/data
+
+    # Restart policy — if the container crashes or zeus01 reboots,
+    # Docker automatically restarts it. `unless-stopped` means it won't
+    # restart if you manually `docker compose down`.
+    restart: unless-stopped
+
+    # Environment variables passed into the container.
+    environment:
+      - FLASK_ENV=production
+
+# Named volumes — Docker manages these on the host filesystem.
+# Find them at /var/lib/docker/volumes/ on zeus01.
+# Unlike bind mounts (./data:/data), named volumes survive `docker compose down`.
+volumes:
+  meal_data:

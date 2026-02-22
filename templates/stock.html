@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Stock{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Ingredient Stock</h1>
+    <p>Current inventory — update after shopping or cooking</p>
+</div>
+
+{% set categories = [
+    ('Smoothie', ['Coconut Milk (Plenish)', 'Pea Protein Powder', 'Spirulina', 'Peanut Butter', 'Frozen Mixed Berries', 'Frozen Pineapple', 'Cinnamon', 'Ginger Powder', 'Banana', 'Hemp Seeds']),
+    ('Grains', ['Quinoa', 'Buckwheat']),
+    ('Stir-Fry', ['Tempeh (Tiba)', 'Broccoli', 'Peppers', 'Courgette', 'Tamari', 'Sesame Oil', 'Garlic', 'Ginger Root', 'Sesame Seeds', 'Nutritional Yeast (Nooch)', 'Rice Vinegar']),
+    ('Bolognese', ['Sunflower Mince', 'Soy Spaghetti', 'Tinned Tomatoes', 'Onion', 'Olive Oil', 'Spinach']),
+    ('Tofu Scramble', ['Firm Tofu', 'Mushrooms', 'Cherry Tomatoes', 'Turmeric', 'Smoked Paprika', 'Black Salt (Kala Namak)', 'Garlic Powder']),
+    ('Power Salad', ['Spinach & Arugula Mix', 'Chickpeas (tinned)', 'Avocado', 'Red Onion', 'Sunflower Seeds', 'Lemon', 'Black Pepper']),
+] %}
+
+{% for cat_name, cat_ingredients in categories %}
+<div class="card">
+    <h2>{{ cat_name }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>In Stock</th>
+                <th>Unit</th>
+                <th>£/unit</th>
+                <th>Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ing in ingredients if ing.name in cat_ingredients %}
+            <tr>
+                <td>
+                    {{ ing.name }}
+                    <span class="store-tag">{{ ing.store }}</span>
+                </td>
+                <td class="mono {% if ing.stock_qty == 0 %}target-low{% elif ing.stock_qty < 2 %}target-warn{% else %}target-ok{% endif %}">
+                    {{ ing.stock_qty }}
+                </td>
+                <td class="mono" style="color:var(--text-dim)">{{ ing.unit }}</td>
+                <td class="mono" style="color:var(--text-dim)">
+                    £{{ '%.2f'|format(ing.price_per_unit) }}/{{ ing.price_unit_size|int }}{{ ing.unit }}
+                </td>
+                <td>
+                    <button onclick="toggleForm({{ ing.id }})" class="btn btn-ghost btn-sm">+</button>
+                </td>
+            </tr>
+            <tr id="form-{{ ing.id }}" style="display:none; background:var(--bg2)">
+                <td colspan="5">
+                    <form action="/update-stock" method="POST" style="display:flex; gap:0.5rem; align-items:flex-end; flex-wrap:wrap; padding:0.5rem 0;">
+                        <input type="hidden" name="ingredient_id" value="{{ ing.id }}">
+                        <div class="form-group" style="margin:0; min-width:80px;">
+                            <label>Qty ({{ ing.unit }})</label>
+                            <input type="number" name="qty" step="0.1" min="0" value="{{ ing.stock_qty }}" style="width:90px;">
+                        </div>
+                        <div class="form-group" style="margin:0; min-width:60px;">
+                            <label>Cost £</label>
+                            <input type="number" name="cost" step="0.01" min="0" placeholder="0.00" style="width:80px;">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label>Store</label>
+                            <input type="text" name="store" value="{{ ing.store }}" style="width:110px;">
+                        </div>
+                        <div style="display:flex; gap:0.4rem;">
+                            <button type="submit" name="action" value="set" class="btn btn-primary btn-sm">Set</button>
+                            <button type="submit" name="action" value="add" class="btn btn-ghost btn-sm">+Add</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+
+<script>
+function toggleForm(id) {
+    const row = document.getElementById('form-' + id);
+    row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+}
+</script>
+{% endblock %}
