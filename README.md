@@ -45,18 +45,12 @@ App available at `http://localhost:5001`
 
 ## Deployment (Home Lab)
 
-Running on `zeus01` (Ubuntu Server 24.04, static IP `192.168.0.24`) — part of a two-node Proxmox cluster (Atlas Lab).
-
+Running on a k3s node in Atlas Lab (self-hosted Proxmox cluster).
 ```bash
-# SSH into zeus01
-ssh zeus@192.168.0.24
-
-# Pull latest and redeploy
-cd ~/meal-tracker
-git pull
-docker compose down
-docker compose up -d --build
+kubectl apply -f kubernetes/
 ```
+
+See [atlas-lab](https://github.com/DevOpsJourneyman/atlas-lab) for infrastructure details.
 
 ## Part of the DevOps Roadmap
 
