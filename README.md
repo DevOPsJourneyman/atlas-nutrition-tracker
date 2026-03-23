@@ -1,5 +1,7 @@
 # Atlas Nutrition Tracker
 
+[![CI](https://github.com/DevOPsJourneyman/atlas-nutrition-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/DevOPsJourneyman/atlas-nutrition-tracker/actions/workflows/ci.yml)
+
 A containerised Flask + SQLite meal tracking app built as part of an 88-day DevOps career transition roadmap. Deployed on a self-hosted Proxmox home lab.
 
 ## What It Does
