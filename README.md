@@ -19,6 +19,8 @@ A containerised Flask + SQLite meal tracking app built as part of an 88-day DevO
 - **Container:** Docker
 - **Orchestration:** Docker Compose
 - **Infrastructure:** Ubuntu Server VM on Proxmox home lab
+- **CI/CD:** GitHub Actions (lint → build → smoke test → push)
+- **Kubernetes:** k3s cluster deployment with PersistentVolumeClaim
 
 ## Docker Concepts Demonstrated
 
@@ -65,6 +67,19 @@ docker compose up -d --build
 docker pull devopsjourneyman/atlas-nutrition-tracker:latest
 docker run -d -p 5001:5000 devopsjourneyman/atlas-nutrition-tracker:latest
 
-Next steps:  add CI/CD pipeline (Week 6).
+## CI/CD Pipeline
+
+Automated via GitHub Actions on every push:
+
+1. **Lint** — Dockerfile analysed with hadolint
+2. **Build & Test** — image built, container started, smoke tested with curl
+3. **Push** — verified image pushed to Docker Hub
+
+Each job only runs if the previous one passes.
+
+## Part of the DevOps Roadmap
+
+Weeks 2 & 6 — Docker Fundamentals + CI/CD
+Portfolio goal: Containerise a real application and automate the build, test, and push pipeline with GitHub Actions.
 
 
